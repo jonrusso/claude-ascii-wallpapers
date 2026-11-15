@@ -42,7 +42,9 @@ const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&
 const n1 = v => Math.round(v * 10) / 10
 
 // One <text> per row, stretched to the cell grid so a fallback font still lines up.
-function rows(lines, cls, cw, lh, x0, y0) {
+// `paint` is the row's color and size as plain attributes: a surface that drops
+// the stylesheet still draws the picture, only without its motion.
+function rows(lines, cls, cw, lh, x0, y0, paint = '') {
   let out = ''
 
   lines.forEach((line, r) => {
@@ -53,7 +55,7 @@ function rows(lines, cls, cw, lh, x0, y0) {
       return
     }
     const body = s.slice(lead)
-    out += `<text class="${cls}" x="${n1(x0 + lead * cw)}" y="${n1(y0 + (r + 1) * lh - lh / 4)}" textLength="${n1(body.length * cw)}">${esc(body)}</text>`
+    out += `<text class="${cls}" ${paint} x="${n1(x0 + lead * cw)}" y="${n1(y0 + (r + 1) * lh - lh / 4)}" textLength="${n1(body.length * cw)}">${esc(body)}</text>`
   })
 
   return out
@@ -63,11 +65,11 @@ function rows(lines, cls, cw, lh, x0, y0) {
 // The root fills whatever box it is given: with no size of its own a surface may lay it out at nothing.
 function page({ w, h, top, bottom, glow, style, body, grid = true, box = 'width="100%" height="100%"' }) {
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" ${box} viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xml:space="preserve">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" ${box} font-family="${FONT}" font-size="16" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xml:space="preserve">` +
     `<defs><linearGradient id="bg" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient>` +
     `<radialGradient id="gw" cx="0.22" cy="0.1" r="0.8"><stop offset="0" stop-color="${glow}" stop-opacity=".55"/><stop offset="1" stop-color="${glow}" stop-opacity="0"/></radialGradient>` +
     (grid
-      ? `<pattern id="gp" width="${CW * 4}" height="${LH * 2}" patternUnits="userSpaceOnUse"><text class="gpt" x="0" y="15">+···</text><text class="gpt" x="0" y="35">·</text></pattern>`
+      ? `<pattern id="gp" width="${CW * 4}" height="${LH * 2}" patternUnits="userSpaceOnUse"><text class="gpt" fill="#fff" x="0" y="15">+···</text><text class="gpt" fill="#fff" x="0" y="35">·</text></pattern>`
       : '') +
     `</defs><style>text{font-family:${FONT};font-size:16px;white-space:pre}.gpt{fill:#fff}${style}` +
     `@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>` +
@@ -88,12 +90,15 @@ function subject(rand, n, spec) {
   const lh = LH * size
   const ink = line => [...line].map(px => (px === 'a' ? INKS[Math.floor(rand() * INKS.length)] : '  ')).join('')
   const shine = line => [...line].map(px => (px === 'b' ? FULL + FULL : '  ')).join('')
-  const draw = (lines, cls) => rows(lines, `${cls} k${n}`, cw, lh, x, y)
+  const draw = (lines, cls, fill) =>
+    rows(lines, `${cls} k${n}`, cw, lh, x, y, `fill="${fill}" font-size="${n1(16 * size)}"`)
   const [first, second = first] = frames
+  // The second frame and the second shimmer start hidden by attribute, so with
+  // no stylesheet one clean frame shows instead of two on top of each other.
   const frame = (map, cls) =>
-    `<g class="${cls}"><g class="sa">${draw(map.map(ink), `bd${n}`)}</g>` +
-    (lite ? '' : `<g class="sb">${draw(map.map(ink), `bd${n}`)}</g>`) +
-    `${draw(map.map(shine), `hl${n}`)}</g>`
+    `<g class="${cls}"${cls === 'fb' ? ' opacity="0"' : ''}><g class="sa">${draw(map.map(ink), `bd${n}`, tone[0])}</g>` +
+    (lite ? '' : `<g class="sb" opacity="0">${draw(map.map(ink), `bd${n}`, tone[0])}</g>`) +
+    `${draw(map.map(shine), `hl${n}`, tone[1])}</g>`
   const base =
     `.k${n}{font-size:${n1(16 * size)}px}.bd${n}{fill:${tone[0]}}.hl${n}{fill:${tone[1]}}` +
     `.o${n}{animation:bob ${bob}s steps(${Math.round(bob * 4)}) -${n * 3}s infinite alternate}`
@@ -130,7 +135,7 @@ function dust(rand, count, color) {
 
   for (let i = 0; i < count; i += 1) {
     css += `.du${i}{animation-duration:${6 + Math.floor(rand() * 9)}s;animation-delay:-${Math.floor(rand() * 9)}s}`
-    body += `<text class="du du${i}" x="${Math.round(rand() * W)}" y="${Math.round(rand() * H)}">${['.', '+', '*', '·', 'o'][i % 5]}</text>`
+    body += `<text class="du du${i}" fill="${color}" fill-opacity=".24" x="${Math.round(rand() * W)}" y="${Math.round(rand() * H)}">${['.', '+', '*', '·', 'o'][i % 5]}</text>`
   }
 
   return { css, body }

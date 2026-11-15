@@ -136,7 +136,9 @@ export const register: Register = on => {
     }
     const { Svg } = $.ui.resolve(e)
 
-    return <Svg source={source} alt={wallpaper.alt} isInteractive />
+    // Drawn as an image, the way the picker's thumbnails are: there the scene's
+    // own stylesheet is known to apply, and its motion is all CSS.
+    return <Svg source={source} alt={wallpaper.alt} />
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
