@@ -12,6 +12,12 @@ Eight scenes behind your chat. Each one is a single SVG: no images, no script, j
 
 </div>
 
+## In the app
+
+<img src="assets/in-app.svg" alt="The Claude desktop app with the Deep Sea wallpaper behind the chat, the sidebar tinted over it, and the wallpaper picker above the prompt" width="100%">
+
+<sub>An illustration, not a screenshot: the wallpaper and the picker thumbnails are the mod's real output, and the app around them is drawn. The wallpaper fills the whole window, the sidebar is tinted over it, and the picker sits above the prompt.</sub>
+
 ## Install
 
 At the prompt of a terminal session:
