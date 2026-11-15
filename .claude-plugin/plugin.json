@@ -1,0 +1,6 @@
+{
+  "name": "ascii-wallpapers",
+  "version": "0.1.0",
+  "description": "Live ASCII wallpapers behind the chat, with a picker above the prompt and /wallpaper <name>.",
+  "types": "./types/index.d.ts"
+}

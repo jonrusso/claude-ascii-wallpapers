@@ -1,0 +1,5 @@
+{
+  "name": "ascii-wallpapers",
+  "owner": { "name": "jonrusso" },
+  "plugins": [{ "name": "ascii-wallpapers", "source": "./" }]
+}
