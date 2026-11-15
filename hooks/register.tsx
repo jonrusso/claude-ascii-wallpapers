@@ -52,10 +52,6 @@ function lookOf(id: string): ThemeSetArgs {
 async function show($: EngineInterface, id: string) {
   const set = await $.theme.set(lookOf(id))
   await $.store.set('lastSet', { id, isDrawn: set.isDrawn, reason: set.isDrawn ? '' : set.reason })
-
-  if (!set.isDrawn) {
-    $.ui.status(`Wallpaper not drawn: ${set.reason}`)
-  }
 }
 
 async function pick($: EngineInterface, id: string) {
