@@ -47,8 +47,8 @@ function lookOf(id: string): ThemeSetArgs {
   }
 }
 
-// Sets the look and keeps what the app answered, so a look that does not draw
-// can be told from one that was never asked for.
+// Sets the look and keeps what the app answered. A terminal draws no look, and
+// that is no fault to report: the picker and the command still work there.
 async function show($: EngineInterface, id: string) {
   const set = await $.theme.set(lookOf(id))
   await $.store.set('lastSet', { id, isDrawn: set.isDrawn, reason: set.isDrawn ? '' : set.reason })
